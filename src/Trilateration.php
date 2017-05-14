@@ -18,8 +18,7 @@ class Trilateration
         Circle $circleA,
         Circle $circleB,
         Circle $circleC
-    )
-    {
+    ) {
         $this->circleA = $circleA;
         $this->circleB = $circleB;
         $this->circleC = $circleC;
@@ -55,7 +54,7 @@ class Trilateration
             pow($i, 2) + pow($j, 2)
         ) / (2 * $j)) - (($i / $j) * $x);
 
-        $z = sqrt(abs(pow($this->circleA->distance(), 2) - pow($x, 2) - pow($y,2)));
+        $z = sqrt(abs(pow($this->circleA->distance(), 2) - pow($x, 2) - pow($y, 2)));
 
         /* triPt is an array with ECEF x,y,z of trilateration point */
         $triPt = $P1
@@ -69,7 +68,7 @@ class Trilateration
 
         /* Convert back to lat/long from ECEF. Convert to degrees. */
         $latitude = rad2deg(asin($triPtZ / self::EARTH_RADIUS));
-        $longitude = rad2deg(atan2($triPtY,$triPtX));
+        $longitude = rad2deg(atan2($triPtY, $triPtX));
 
         return new Point($latitude, $longitude);
     }
