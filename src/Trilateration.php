@@ -8,7 +8,7 @@ use Tuupola\Trilateration\Point;
 
 class Trilateration
 {
-    const EARTH_RADIUS = 6371;
+    const EARTH_RADIUS = 6378137;
 
     private $circleA;
     private $circleB;
@@ -29,6 +29,7 @@ class Trilateration
         /* http://en.wikipedia.org/wiki/Trilateration */
         /* https://gis.stackexchange.com/a/415 */
         /* https://gist.github.com/dav-/bb7103008cdf9359887f */
+        /* https://github.com/prbdias/trilateration */
 
         $P1 = $this->circleA->toVector();
         $P2 = $this->circleB->toVector();
@@ -54,9 +55,12 @@ class Trilateration
             pow($i, 2) + pow($j, 2)
         ) / (2 * $j)) - (($i / $j) * $x);
 
-        $z = sqrt(abs(pow($this->circleA->distance(), 2) - pow($x, 2) - pow($y, 2)));
+        /* If z = NaN if circle does not touch sphere. No solution. */
+        /* If z = 0 circle touches sphere at exactly one point. */
+        /* If z < 0 > z circle touches sphere at two points. */
+        $z = sqrt(pow($this->circleA->distance(), 2) - pow($x, 2) - pow($y, 2));
 
-        /* triPt is an array with ECEF x,y,z of trilateration point */
+        /* triPt is vector with ECEF x,y,z of trilateration point */
         $triPt = $P1
             ->add($ex->multiplyByScalar($x))
             ->add($ey->multiplyByScalar($y))
