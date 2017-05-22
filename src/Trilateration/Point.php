@@ -50,6 +50,21 @@ class Point
         return new Vector([$vx, $vy, $vz]);
     }
 
+    public function distance(Point $point)
+    {
+        $lat1 = $this->latitude();
+        $lon1 = $this->longitude();
+        $lat2 = $point->latitude();
+        $lon2 = $point->longitude();
+
+        $latd = deg2rad($lat2 - $lat1);
+        $lond = deg2rad($lon2 - $lon1);
+        $a = sin($latd / 2) * sin($latd / 2) +
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($lond / 2) * sin($lond / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        return Trilateration::EARTH_RADIUS * $c;
+    }
 
     public function __toString()
     {
