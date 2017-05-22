@@ -37,6 +37,18 @@ class Trilateration
         $this->circleC = $circleC;
     }
 
+    public function position()
+    {
+        $point1 = $this->intersection();
+        $trilateration = new Trilateration($this->circleB, $this->circleA, $this->circleC);
+        $point2 = $trilateration->intersection();
+
+        return new Point(
+            ($point1->latitude() + $point2->latitude()) / 2,
+            ($point1->longitude() + $point2->longitude()) / 2
+        );
+    }
+
     public function intersection()
     {
         /* http://en.wikipedia.org/wiki/Trilateration */
@@ -71,7 +83,7 @@ class Trilateration
         /* If z = NaN if circle does not touch sphere. No solution. */
         /* If z = 0 circle touches sphere at exactly one point. */
         /* If z < 0 > z circle touches sphere at two points. */
-        $z = sqrt(pow($this->circleA->radius(), 2) - pow($x, 2) - pow($y, 2));
+        $z = sqrt(abs(pow($this->circleA->radius(), 2) - pow($x, 2) - pow($y, 2)));
 
         /* triPt is vector with ECEF x,y,z of trilateration point */
         $triPt = $P1

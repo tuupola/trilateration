@@ -34,7 +34,6 @@ class Circle extends Point
         return $this->radius;
     }
 
-
     public function __toString()
     {
         return "{$this->latitude},{$this->longitude},{$this->radius}";
