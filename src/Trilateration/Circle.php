@@ -20,17 +20,23 @@ use Nubs\Vectorix\Vector;
 
 class Circle extends Point
 {
-    protected $distance;
+    protected $radius;
 
-    public function __construct($latitude, $longitude, $distance)
+    public function __construct($latitude, $longitude, $radius)
     {
         $this->latitude = $latitude;
         $this->longitude = $longitude;
-        $this->distance = $distance;
+        $this->radius = $radius;
     }
 
-    public function distance()
+    public function radius()
     {
-        return $this->distance;
+        return $this->radius;
+    }
+
+
+    public function __toString()
+    {
+        return "{$this->latitude},{$this->longitude},{$this->radius}";
     }
 }

@@ -44,9 +44,9 @@ class Trilateration
         /* https://gist.github.com/dav-/bb7103008cdf9359887f */
         /* https://github.com/prbdias/trilateration */
 
-        $P1 = $this->circleA->toVector();
-        $P2 = $this->circleB->toVector();
-        $P3 = $this->circleC->toVector();
+        $P1 = $this->circleA->toEarthCenteredVector();
+        $P2 = $this->circleB->toEarthCenteredVector();
+        $P3 = $this->circleC->toEarthCenteredVector();
 
         $ex = $P2->subtract($P1)->normalize();
         $i = $ex->dotProduct($P3->subtract($P1));
@@ -57,21 +57,21 @@ class Trilateration
         $j = $ey->dotProduct($P3->subtract($P1));
 
         $x = (
-            pow($this->circleA->distance(), 2) -
-            pow($this->circleB->distance(), 2) +
+            pow($this->circleA->radius(), 2) -
+            pow($this->circleB->radius(), 2) +
             pow($d, 2)
         ) / (2 * $d);
 
         $y = ((
-            pow($this->circleA->distance(), 2) -
-            pow($this->circleC->distance(), 2) +
+            pow($this->circleA->radius(), 2) -
+            pow($this->circleC->radius(), 2) +
             pow($i, 2) + pow($j, 2)
         ) / (2 * $j)) - (($i / $j) * $x);
 
         /* If z = NaN if circle does not touch sphere. No solution. */
         /* If z = 0 circle touches sphere at exactly one point. */
         /* If z < 0 > z circle touches sphere at two points. */
-        $z = sqrt(pow($this->circleA->distance(), 2) - pow($x, 2) - pow($y, 2));
+        $z = sqrt(pow($this->circleA->radius(), 2) - pow($x, 2) - pow($y, 2));
 
         /* triPt is vector with ECEF x,y,z of trilateration point */
         $triPt = $P1

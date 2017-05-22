@@ -39,7 +39,7 @@ class Point
         return $this->longitude;
     }
 
-    public function toVector()
+    public function toEarthCenteredVector()
     {
         $vx = Trilateration::EARTH_RADIUS * (cos(deg2rad($this->latitude()))
             * cos(deg2rad($this->longitude())));
@@ -48,5 +48,11 @@ class Point
         $vz = Trilateration::EARTH_RADIUS * (sin(deg2rad($this->latitude())));
 
         return new Vector([$vx, $vy, $vz]);
+    }
+
+
+    public function __toString()
+    {
+        return "{$this->latitude},{$this->longitude}";
     }
 }
