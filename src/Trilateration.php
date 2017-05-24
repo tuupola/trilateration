@@ -16,31 +16,31 @@
 namespace Tuupola;
 
 use Nubs\Vectorix\Vector;
-use Tuupola\Trilateration\Circle;
+use Tuupola\Trilateration\Sphere;
 use Tuupola\Trilateration\Point;
 
 class Trilateration
 {
     const EARTH_RADIUS = 6378137;
 
-    private $circleA;
-    private $circleB;
-    private $circleC;
+    private $sphereA;
+    private $sphereB;
+    private $sphereC;
 
     public function __construct(
-        Circle $circleA,
-        Circle $circleB,
-        Circle $circleC
+        Sphere $sphereA,
+        Sphere $sphereB,
+        Sphere $sphereC
     ) {
-        $this->circleA = $circleA;
-        $this->circleB = $circleB;
-        $this->circleC = $circleC;
+        $this->sphereA = $sphereA;
+        $this->sphereB = $sphereB;
+        $this->sphereC = $sphereC;
     }
 
     public function position()
     {
         $point1 = $this->intersection();
-        $trilateration = new Trilateration($this->circleB, $this->circleA, $this->circleC);
+        $trilateration = new Trilateration($this->sphereB, $this->sphereA, $this->sphereC);
         $point2 = $trilateration->intersection();
 
         return new Point(
@@ -52,38 +52,46 @@ class Trilateration
     public function intersection()
     {
         /* http://en.wikipedia.org/wiki/Trilateration */
-        /* https://gis.stackexchange.com/a/415 */
-        /* https://gist.github.com/dav-/bb7103008cdf9359887f */
-        /* https://github.com/prbdias/trilateration */
+        $P1 = $this->sphereA->toEarthCenteredVector();
+        $P2 = $this->sphereB->toEarthCenteredVector();
+        $P3 = $this->sphereC->toEarthCenteredVector();
 
-        $P1 = $this->circleA->toEarthCenteredVector();
-        $P2 = $this->circleB->toEarthCenteredVector();
-        $P3 = $this->circleC->toEarthCenteredVector();
-
+        /* $ex is the unit vector in the direction from P1 to P2. */
         $ex = $P2->subtract($P1)->normalize();
+        /* $i is the signed magnitude of the x component, in the figure 1  */
+        /* coordinate system, of the vector from P1 to P3. */
         $i = $ex->dotProduct($P3->subtract($P1));
+        /* $ey is the unit vector in the y direction. Note that the points P1, P2 */
+        /* and P3 are all in the z = 0 plane of the figure 1 coordinate system. */
         $temp = $ex->multiplyByScalar($i);
         $ey = $P3->subtract($P1)->subtract($temp)->normalize();
+        /* $ez is third basis vector. */
         $ez = $ex->crossProduct($ey);
+        /* $d is the distance between the centers P1 and P2. */
         $d = $P2->subtract($P1)->length();
+        /* $j is the signed magnitude of the y component, in the figure 1 */
+        /* coordinate system, of the vector from P1 to P3. */
         $j = $ey->dotProduct($P3->subtract($P1));
 
         $x = (
-            pow($this->circleA->radius(), 2) -
-            pow($this->circleB->radius(), 2) +
+            pow($this->sphereA->radius(), 2) -
+            pow($this->sphereB->radius(), 2) +
             pow($d, 2)
         ) / (2 * $d);
 
         $y = ((
-            pow($this->circleA->radius(), 2) -
-            pow($this->circleC->radius(), 2) +
+            pow($this->sphereA->radius(), 2) -
+            pow($this->sphereC->radius(), 2) +
             pow($i, 2) + pow($j, 2)
         ) / (2 * $j)) - (($i / $j) * $x);
 
-        /* If z = NaN if circle does not touch sphere. No solution. */
-        /* If z = 0 circle touches sphere at exactly one point. */
-        /* If z < 0 > z circle touches sphere at two points. */
-        $z = sqrt(abs(pow($this->circleA->radius(), 2) - pow($x, 2) - pow($y, 2)));
+        /* If $z = NaN if circle does not touch sphere. No solution. */
+        /* If $z = 0 circle touches sphere at exactly one point. */
+        /* If $z < 0 > z circle touches sphere at two points. */
+        $z = sqrt(pow($this->sphereA->radius(), 2) - pow($x, 2) - pow($y, 2));
+        /* Using absolute value makes formula pass even when circles do not */
+        /* overlap. The result, however is not correct. */
+        //$z = sqrt(abs(pow($this->sphereA->radius(), 2) - pow($x, 2) - pow($y, 2)));
 
         /* triPt is vector with ECEF x,y,z of trilateration point */
         $triPt = $P1

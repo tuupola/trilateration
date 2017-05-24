@@ -18,7 +18,7 @@ namespace Tuupola\Trilateration;
 use Tuupola\Trilateration;
 use Nubs\Vectorix\Vector;
 
-class Circle extends Point
+class Sphere extends Point
 {
     protected $radius;
 
