@@ -13,7 +13,7 @@
  *
  */
 
-namespace Tuupola;
+namespace Tuupola\Trilateration;
 
 use Nubs\Vectorix\Vector;
 use Tuupola\Trilateration\Sphere;
@@ -21,7 +21,7 @@ use Tuupola\Trilateration\Point;
 
 use RuntimeException;
 
-class Trilateration
+class Intersection
 {
     const EARTH_RADIUS = 6378137;
 

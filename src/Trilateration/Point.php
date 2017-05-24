@@ -20,6 +20,8 @@ use Nubs\Vectorix\Vector;
 
 class Point
 {
+    const EARTH_RADIUS = 6378137;
+
     protected $latitude;
     protected $longitude;
 
@@ -41,11 +43,11 @@ class Point
 
     public function toEarthCenteredVector()
     {
-        $vx = Trilateration::EARTH_RADIUS * (cos(deg2rad($this->latitude()))
+        $vx = self::EARTH_RADIUS * (cos(deg2rad($this->latitude()))
             * cos(deg2rad($this->longitude())));
-        $vy = Trilateration::EARTH_RADIUS * (cos(deg2rad($this->latitude()))
+        $vy = self::EARTH_RADIUS * (cos(deg2rad($this->latitude()))
             * sin(deg2rad($this->longitude())));
-        $vz = Trilateration::EARTH_RADIUS * (sin(deg2rad($this->latitude())));
+        $vz = self::EARTH_RADIUS * (sin(deg2rad($this->latitude())));
 
         return new Vector([$vx, $vy, $vz]);
     }
@@ -63,7 +65,7 @@ class Point
             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
             sin($lond / 2) * sin($lond / 2);
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-        return Trilateration::EARTH_RADIUS * $c;
+        return self::EARTH_RADIUS * $c;
     }
 
     public function __toString()
