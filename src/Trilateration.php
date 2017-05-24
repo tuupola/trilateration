@@ -19,6 +19,8 @@ use Nubs\Vectorix\Vector;
 use Tuupola\Trilateration\Sphere;
 use Tuupola\Trilateration\Point;
 
+use RuntimeException;
+
 class Trilateration
 {
     const EARTH_RADIUS = 6378137;
@@ -26,6 +28,7 @@ class Trilateration
     private $sphereA;
     private $sphereB;
     private $sphereC;
+    private $autocorrect = 1;
 
     public function __construct(
         Sphere $sphereA,
@@ -39,17 +42,27 @@ class Trilateration
 
     public function position()
     {
-        $point1 = $this->intersection();
-        $trilateration = new Trilateration($this->sphereB, $this->sphereA, $this->sphereC);
-        $point2 = $trilateration->intersection();
+        $point = $this->intersection();
 
-        return new Point(
-            ($point1->latitude() + $point2->latitude()) / 2,
-            ($point1->longitude() + $point2->longitude()) / 2
-        );
+        /* If autocorrect is set increase sphere radius until they intersect. */
+        if ($this->autocorrect) {
+            while (!$point) {
+                $this->sphereA = $this->sphereA->enlarge($this->autocorrect);
+                $this->sphereB = $this->sphereB->enlarge($this->autocorrect);
+                $this->sphereC = $this->sphereC->enlarge($this->autocorrect);
+                $point = $this->intersection();
+            }
+        }
+
+        /* If solution not found throw. */
+        if (!$point) {
+            throw new RuntimeException("Spheres do not intersect.");
+        }
+
+        return $point;
     }
 
-    public function intersection()
+    private function intersection()
     {
         /* http://en.wikipedia.org/wiki/Trilateration */
         $P1 = $this->sphereA->toEarthCenteredVector();
@@ -92,6 +105,10 @@ class Trilateration
         /* Using absolute value makes formula pass even when circles do not */
         /* overlap. The result, however is not correct. */
         //$z = sqrt(abs(pow($this->sphereA->radius(), 2) - pow($x, 2) - pow($y, 2)));
+
+        if (is_nan($z)) {
+            return false;
+        }
 
         /* triPt is vector with ECEF x,y,z of trilateration point */
         $triPt = $P1

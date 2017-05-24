@@ -34,6 +34,11 @@ class Sphere extends Point
         return $this->radius;
     }
 
+    public function enlarge($meters)
+    {
+        return new Sphere($this->latitude, $this->longitude, $this->radius + $meters);
+    }
+
     public function __toString()
     {
         return "{$this->latitude},{$this->longitude},{$this->radius}";
