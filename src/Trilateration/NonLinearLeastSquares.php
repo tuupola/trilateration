@@ -30,6 +30,12 @@ class NonLinearLeastSquares
         $this->spheres = $spheres;
     }
 
+    public function addSphere(Sphere $sphere)
+    {
+        $spheres = array_merge([$sphere], $this->spheres);
+        return new self(...$spheres);
+    }
+
     public function position()
     {
         $latitude = array_map(function ($sphere) {
