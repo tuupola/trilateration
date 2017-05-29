@@ -6,7 +6,7 @@
 [![HHVM Status](https://img.shields.io/hhvm/tuupola/trilateration.svg?style=flat-square)](http://hhvm.h4cc.de/package/tuupola/trilateration)
 [![Coverage](http://img.shields.io/codecov/c/github/tuupola/trilateration.svg?style=flat-square)](https://codecov.io/github/tuupola/trilateration)
 
-PHP implementation of [Trilateration](https://en.wikipedia.org/wiki/Trilateration) algorithm.
+PHP implementation of [Trilateration](https://en.wikipedia.org/wiki/Trilateration) algorithm. See [Wifi Trilateration With Three or More Points](https://appelsiini.net/2017/trilateration-with-n-points/) for walkthrough.
 
 ## Install
 
