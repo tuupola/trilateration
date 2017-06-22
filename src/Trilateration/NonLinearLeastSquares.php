@@ -78,7 +78,13 @@ latitude <- summary(fit)$coefficients[2]
 print(paste(latitude, longitude, sep=","))
 EOF;
 
-        $process = new Process("/usr/local/bin/R --slave --vanilla");
+        /* TODO: Probably should check /opt and other paths too. */
+        $binary = "/usr/local/bin/R";
+        if (!file_exists($binary)) {
+            $binary = "/usr/bin/R";
+        }
+
+        $process = new Process("$binary --slave --vanilla");
         $process->setInput($r);
         $process->run();
 
