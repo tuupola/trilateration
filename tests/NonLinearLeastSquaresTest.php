@@ -81,4 +81,18 @@ class NonLinearLeastSquaresTest extends TestCase
         };
         call_user_func($closure->bindTo($nls2, NonLinearLeastSquares::class));
     }
+
+    public function testShouldFindTallinn()
+    {
+        $sphere1 = new Sphere(60.1695, 24.9354, 82175);
+        $sphere2 = new Sphere(58.3806, 26.7251, 163311);
+        $sphere3 = new Sphere(58.3859, 24.4971, 117932);
+        $sphere4 = new Sphere(7.974592, 98.339996, 25);
+
+        $nls = new NonLinearLeastSquares($sphere1, $sphere2, $sphere3);
+        $point = $nls->position();
+
+        $this->assertEquals(59.436998636, round($point->latitude(), 9));
+        $this->assertEquals(24.753506837, round($point->longitude(), 9));
+    }
 }
