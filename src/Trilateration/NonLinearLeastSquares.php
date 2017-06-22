@@ -15,9 +15,8 @@
 
 namespace Tuupola\Trilateration;
 
-use Kachkaev\PHPR\RCore;
-use Kachkaev\PHPR\Engine\CommandLineREngine;
-use Kachkaev\PHPR\ROutputParser;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Tuupola\Trilateration\Sphere;
 use Tuupola\Trilateration\Point;
 
@@ -53,9 +52,7 @@ class NonLinearLeastSquares
         }, $this->spheres);
         $distance = implode($distance, ",");
 
-        $r = (new RCore(new CommandLineREngine("/usr/local/bin/R")))->createInteractiveProcess();
-        $r->start();
-        $r->write(<<<EOF
+        $r = <<<EOF
 # install.packages("geosphere")
 library(geosphere)
 
@@ -64,10 +61,8 @@ locations <- data.frame(
     longitude = c($longitude),
     distance = c($distance)
 )
-EOF
-        );
-
-        $r->write(<<<'EOF'
+EOF;
+        $r .= <<<'EOF'
 # Use average as the starting point
 fit <- nls(
     distance ~ distm(data.frame(longitude, latitude), c(fitLongitude, fitLatitude)),
@@ -81,11 +76,19 @@ longitude <- summary(fit)$coefficients[1]
 latitude <- summary(fit)$coefficients[2]
 
 print(paste(latitude, longitude, sep=","))
-EOF
-        );
+EOF;
 
-        $output = trim($r->getLastWriteOutput());
-        $output = str_replace(['[1] ', '"'], "", $output);
+        $process = new Process("/usr/local/bin/R --slave --vanilla");
+        $process->setInput($r);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        $output = $process->getOutput();
+        $output = str_replace('"', "", $output);
+        $output = str_replace("[1] ", "", $output);
         list($latitude, $longitude) = explode(",", $output);
         return new Point($latitude, $longitude);
     }

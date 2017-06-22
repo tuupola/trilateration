@@ -18,7 +18,7 @@
     ],
     "require": {
         "nubs/vectorix": "^1.1",
-        "kachkaev/php-r": "^1.0"
+        "symfony/process": "^3.3"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.7",
