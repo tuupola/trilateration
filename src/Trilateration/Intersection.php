@@ -25,19 +25,18 @@ class Intersection
 {
     const EARTH_RADIUS = 6378137;
 
-    private $sphereA;
-    private $sphereB;
-    private $sphereC;
     private $autocorrect = 1;
+    private $spheres = [];
 
-    public function __construct(
-        Sphere $sphereA,
-        Sphere $sphereB,
-        Sphere $sphereC
-    ) {
-        $this->sphereA = $sphereA;
-        $this->sphereB = $sphereB;
-        $this->sphereC = $sphereC;
+    public function __construct(Sphere ...$spheres)
+    {
+        $this->spheres = $spheres;
+    }
+
+    public function addSphere(Sphere $sphere)
+    {
+        $spheres = array_merge([$sphere], $this->spheres);
+        return new self(...$spheres);
     }
 
     public function position()
@@ -47,9 +46,9 @@ class Intersection
         /* If autocorrect is set increase sphere radius until they intersect. */
         if ($this->autocorrect) {
             while (!$point) {
-                $this->sphereA = $this->sphereA->enlarge($this->autocorrect);
-                $this->sphereB = $this->sphereB->enlarge($this->autocorrect);
-                $this->sphereC = $this->sphereC->enlarge($this->autocorrect);
+                $this->spheres[0] = $this->spheres[0]->enlarge($this->autocorrect);
+                $this->spheres[1] = $this->spheres[1]->enlarge($this->autocorrect);
+                $this->spheres[2] = $this->spheres[2]->enlarge($this->autocorrect);
                 $point = $this->intersection();
             }
         }
@@ -65,9 +64,9 @@ class Intersection
     private function intersection()
     {
         /* http://en.wikipedia.org/wiki/Trilateration */
-        $P1 = $this->sphereA->toEarthCenteredVector();
-        $P2 = $this->sphereB->toEarthCenteredVector();
-        $P3 = $this->sphereC->toEarthCenteredVector();
+        $P1 = $this->spheres[0]->toEarthCenteredVector();
+        $P2 = $this->spheres[1]->toEarthCenteredVector();
+        $P3 = $this->spheres[2]->toEarthCenteredVector();
 
         /* $ex is the unit vector in the direction from P1 to P2. */
         $ex = $P2->subtract($P1)->normalize();
@@ -87,24 +86,24 @@ class Intersection
         $j = $ey->dotProduct($P3->subtract($P1));
 
         $x = (
-            pow($this->sphereA->radius(), 2) -
-            pow($this->sphereB->radius(), 2) +
+            pow($this->spheres[0]->radius(), 2) -
+            pow($this->spheres[1]->radius(), 2) +
             pow($d, 2)
         ) / (2 * $d);
 
         $y = ((
-            pow($this->sphereA->radius(), 2) -
-            pow($this->sphereC->radius(), 2) +
+            pow($this->spheres[0]->radius(), 2) -
+            pow($this->spheres[2]->radius(), 2) +
             pow($i, 2) + pow($j, 2)
         ) / (2 * $j)) - (($i / $j) * $x);
 
         /* If $z = NaN if circle does not touch sphere. No solution. */
         /* If $z = 0 circle touches sphere at exactly one point. */
         /* If $z < 0 > z circle touches sphere at two points. */
-        $z = sqrt(pow($this->sphereA->radius(), 2) - pow($x, 2) - pow($y, 2));
+        $z = sqrt(pow($this->spheres[0]->radius(), 2) - pow($x, 2) - pow($y, 2));
         /* Using absolute value makes formula pass even when circles do not */
         /* overlap. The result, however is not correct. */
-        //$z = sqrt(abs(pow($this->sphereA->radius(), 2) - pow($x, 2) - pow($y, 2)));
+        //$z = sqrt(abs(pow($this->spheres[0]->radius(), 2) - pow($x, 2) - pow($y, 2)));
 
         if (is_nan($z)) {
             return false;
