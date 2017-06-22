@@ -14,9 +14,11 @@ Install the library using [Composer](https://getcomposer.org/).
 ``` bash
 $ composer require tuupola/trilateration
 ```
-## Usage
 
-Library provided two versions of the trilateration algorithm. Pure PHP implementation calculates the position using traditional algebra based on three given locations.
+## Usage
+### Pure PHP Version
+
+Pure PHP implementation calculates the position by finding the intersection of three spheres using traditional algebra. If the spheres do not intersect algorithm enlarges the spheres until they do intersect.
 
 ```php
 use Tuupola\Trilateration\Intersection;
@@ -46,9 +48,14 @@ print '<a href="{$url}">Open in map</a>';
 ```
 [Open in map](https://appelsiini.net/circles/?c=60.1695,24.9354,81175&c=58.3806,26.7251,162311&c=58.3859,24.4971,116932&m=59.418775152143,24.753287172291")
 
+### Non Linear Least Squares Using R
 
-R version uses non linear least squares algorithm. It can use three or more locations for the calculation.
+R version uses [non linear least squares fitting](http://mathworld.wolfram.com/NonlinearLeastSquaresFitting.html). It can use three or more locations for the calculation and gives better results when given data is less accurate. Before using this version you must install the [R language](https://www.r-project.org/) and [geosphere](https://cran.r-project.org/web/packages/geosphere/index.html) package.
 
+```
+$ sudo yum -y install R
+$ sudo su - -c "R -e \"install.packages('geosphere', repos='http://cran.rstudio.com/')\""
+```
 
 ```php
 use Tuupola\Trilateration\NonLinearLeastSquares;
