@@ -16,7 +16,7 @@ before_script:
     - travis_retry composer self-update
     - travis_retry composer install --no-interaction
     - sudo apt-get -y install r-base
-    - sudo su - -c "R -e \"install.packages('http://cran.r-project.org/src/contrib/Archive/sp/sp_1.2-5.tar.gz', repos = NULL, type='source')\""
+    - sudo su - -c "R -e \"install.packages('http://cran.r-project.org/src/contrib/Archive/sp/sp_1.2-7.tar.gz', repos = NULL, type='source')\""
     - sudo su - -c "R -e \"install.packages('geosphere', repos = 'http://cran.rstudio.com/')\""
 
 script:
