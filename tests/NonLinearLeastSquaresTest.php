@@ -92,7 +92,7 @@ class NonLinearLeastSquaresTest extends TestCase
         $trilateration = new NonLinearLeastSquares($sphere1, $sphere2, $sphere3);
         $point = $trilateration->position();
 
-        $this->assertEquals(59.436587614, round($point->latitude(), 9));
-        $this->assertEquals(24.758933971, round($point->longitude(), 9));
+        $this->assertEquals(59.4366, round($point->latitude(), 4));
+        $this->assertEquals(24.7589, round($point->longitude(), 4));
     }
 }
